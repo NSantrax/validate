@@ -35,12 +35,12 @@ module Module9
   end                                     
 end
 
-class TypeError < ArgumentError; end
+#class TypeError < ArgumentError; end
 
 #class Test
-  extend Module9
+  #exted Module9
 
-  strong_attr_acessor :name, Fixnum
+  #strong_attr_acessor :name, Fixnum
 
-  attr_accessor_with_history :my_attr, :number, :color
+  #attr_accessor_with_history :my_attr, :number, :color
 #end

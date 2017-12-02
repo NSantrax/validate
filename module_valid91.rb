@@ -15,69 +15,79 @@
     #Заменить валидации в проекте железной дороги на этот модуль и методы из него.
 
 
-module Validation9
+module Validation
 
   def self.included(base)
-    base.extend ClassMetods
-    base.send :include, InstanceMetods
+    base.extend ClassMethods
+    base.send :include, InstanceMethods
   end
 
-  module ClassMetods
+  module ClassMethods
 
-  def validate(name, *args)
-    args.flatten!
-    if args[0] == :presense
-      raise NamenilError,"Значение переменной #{name} отсутствует" if args.last == '' || args.last == nil
+    attr_reader :validations
 
-    elsif args[0] == :format       
-      raise ArgumentError, "Формат переменной #{name} не задан" unless args[1].to_s =~ /.*/
-      raise FormatError, "Значение переменной #{name} имеет неправильный формат" unless args.last.to_s =~ args[1]
-
-    elsif args[0] == :type
-      raise ArgumentError, 'Тип не задан' if args[1] == nil
-      raise TypeinstanceError,"Значение переменной #{name} не того класса" unless args.last.class == args[1]
-
-    else
-      raise ValidError,'Такого типа валидации не существует'
+    def validate ( name, type_validation, param = nil )
+       @validations ||= []
+       @validations  << [name, type_validation, param]
+       p @validations
     end
   end
-end
 
-  module InstanceMetods
+  module InstanceMethods
+
+    def validate!
+      p self.class.validations
+      self.class.validations.each do |validation|
+        name = validation[0]
+        type_validation = validation[1]
+        param = validation[2]
+        var = instance_variable_get("@#{name}")
+      
+        send("#{type_validation}_validation".to_sym, var, name, param)
+      end
+    end
+
+      def presence_validation (var, name, param)
+        raise ValidateError,"Значение переменной #{name} nil" if var.nil?
+        raise ValidateError,"Значение переменной #{name} отсутствует" if var.to_s.empty?
+      end
+ 
+      def format_validation (var, name, param)      
+        raise ValidateError, "Формат переменной #{name} не задан" if param.to_s.empty?
+        raise ValidateError, "Значение переменной #{name} имеет неправильный формат" unless var.to_s =~ param
+      end
+
+      def type_validation (var, name, param)
+        raise ValidateError, 'Тип не задан' if name.to_s.empty?
+        raise ValidateError,"Значение переменной #{name} не того класса" unless var.is_a? param
+      end
 
     def valid?
-      args = instance_variables
-      args.each do |arg|
-        var_name = arg.to_s.delete("@").to_sym
-        instance = self.class.const_get(:INSTANCE)
-        self.class.validate var_name, instance[var_name], self.instance_variable_get(arg)
-      end
+      validate!
       true
-      rescue ArgumentError => e
-      p e.inspect
+      rescue ValidateError => e
+      p e.inspect       
       false
     end
   end
 end
 
 class Test
-
-  INSTANCE = { name: [:type, Fixnum], number: [:format, /^[0-9]{1,2}$/ ], color: [:presense] }.freeze
-
-  include Validation9
+  
+  include Validation
 
   extend Module9
 
-  strong_attr_acessor :name, Fixnum
+  @validations = []
 
-  attr_accessor_with_history :number, :color
+  strong_attr_acessor :name, :Fixnum
 
+  attr_accessor_with_history :number, :color, :a
+
+  
+  validate :name, :type, Fixnum
+  validate :color, :presence
+  validate :number, :format, /^[0-9]{1,2}$/
 end
 
-class ValidError < ArgumentError; end
-
-class NamenilError < ArgumentError; end
-
-class FormatError < ArgumentError; end
-
-class TypeinstanceError < ArgumentError; end
+class ValidateError < ArgumentError; end
