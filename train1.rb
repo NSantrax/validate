@@ -1,6 +1,7 @@
  # У класса Train написать метод, который принимает блок и проходит по всем вагонам поезда, передавая каждый объект вагона в блок.
 require_relative './module'
 #require_relative './module_valid'
+require_relative './module_counter'
 require_relative './module_valid91'
 
 class Train
@@ -32,14 +33,14 @@ class Train
   def initialize(number, number_cars)
     @number = number
     @number_cars = number_cars
-    #validate!
+    #valid?
     @cars = []
     @speed = 0
     @route = nil
     @station = nil
     @station_number = nil
     @@trains << self
-    register_instance
+    self.register_instance
     i = 0
     while i < @number_cars.to_i
       attach_car
@@ -167,14 +168,14 @@ end
 
 class PassengerTrain < Train
   #include Manufacturer
-  #include InstanceCounter
+  include InstanceCounter
   include Validation
 
-  validations = []
-  validate :number, :presence
-  validate :number, :format, NUMBER_FORMAT
-  validate :number_cars, :presence
-  validate :number_cars, :format, NUMBER_CARS_FORMAT
+ #validations = []
+ # validate :number, :presence
+  #validate :number, :format, NUMBER_FORMAT
+  #validate :number_cars, :presence
+  #validate :number_cars, :format, NUMBER_CARS_FORMAT
 
   variable_zero
 
@@ -185,7 +186,7 @@ end
 
 class CargoTrain < Train
   #include Manufacturer
-  #include InstanceCounter
+  include InstanceCounter
   include Validation
   validations = []
   validate :number, :presence
