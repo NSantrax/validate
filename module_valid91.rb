@@ -72,22 +72,22 @@ module Validation
   end
 end
 
-class Test
+#class Test
   
-  include Validation
+ # include Validation
 
-  extend Module9
+  #extend Module9
 
-  @validations = []
+  #@validations = []
 
-  strong_attr_acessor :name, :Fixnum
+  #strong_attr_acessor :name, :Fixnum
 
-  attr_accessor_with_history :number, :color, :a
+  #attr_accessor_with_history :number, :color, :a
 
   
-  validate :name, :type, Fixnum
-  validate :color, :presence
-  validate :number, :format, /^[0-9]{1,2}$/
-end
+ # validate :name, :type, Fixnum
+  #validate :color, :presence
+ # validate :number, :format,  /^[0-9]{1,2}$/
+#end
 
 class ValidateError < ArgumentError; end
